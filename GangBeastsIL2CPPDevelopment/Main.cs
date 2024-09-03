@@ -8,7 +8,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace GangBeastsIL2CPPDevelopment
+namespace BeastNet
 {
     [BepInPlugin("com.ethanbarron.il2cppmodding", "GangBeastsIL2CPPDevelopment", "0.0.1")]
     public class Main : BasePlugin
