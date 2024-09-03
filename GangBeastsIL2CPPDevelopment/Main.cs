@@ -25,13 +25,16 @@ namespace GangBeastsIL2CPPDevelopment
         {
             if (scene.name == "Menu")
             {
+                // This enables us to use the development test server hotkeys. Will be working on this soon to streamline the process
                 AddComponent<DevelopmentTestServer>().ui = GameObject.Find("Global(Clone)/UI/PlatformUI/Development Server Menu").GetComponent<DevelopmentTestServerUI>();
 
+                // Launching from my server terminal gives the server arg which just mutes the game, hides the load level UI (it bugs out) and attempts to
+                // initialize integral coatsink wrappers
                 if (Environment.GetCommandLineArgs().Contains("-SERVER"))
                 {
                     UnityServicesManager.Instance.Initialise(UnityServicesManager.InitialiseFlags.DedicatedServer, null, "", "DGS");
                     AudioListener.pause = true;
-                    GameObject.Find("Global(Clone)/LevelLoadSystem/ScreenDisplay").SetActive(false);
+                    GameObject.Find("Global(Clone)/LevelLoadSystem").SetActive(false);
                 }
             }
         }
@@ -39,9 +42,10 @@ namespace GangBeastsIL2CPPDevelopment
 
     public class Core : MonoBehaviour
     {
-
+        // Temporary
     }
 
+    // DevelopmentTestServer looks for impossible command line arguments so I just fixed it
     [HarmonyPatch(typeof(DevelopmentTestServer), nameof(DevelopmentTestServer.Awake))]
     public class CommandLineFix
     {
@@ -60,6 +64,7 @@ namespace GangBeastsIL2CPPDevelopment
         }
     }
 
+    // Temporary
     [HarmonyPatch(typeof(StringLoader), nameof(StringLoader.LoadString))]
     public static class StringTester
     {
