@@ -22,7 +22,7 @@ namespace BeastNet
             AddComponent<Core>();
 
             new Harmony("Cheese").PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
-            TestMessaging.Init();
+            SceneManager.add_sceneLoaded(new Action<Scene, LoadSceneMode>(Networking.MessageManager.OnSceneLoaded));
             SceneManager.add_sceneLoaded(new Action<Scene, LoadSceneMode>(WrapperFix));
         }
 
@@ -53,7 +53,7 @@ namespace BeastNet
         {
             if (GUILayout.Button("Send message"))
             {
-                Utils.SendMessage(6942, NetNullMessage.CachedEmptyMessage, NetworkServer.active, true);
+                Networking.NetworkUtils.SendMessage(6942, NetNullMessage.CachedEmptyMessage, NetworkServer.active, true);
             }
         }
     }

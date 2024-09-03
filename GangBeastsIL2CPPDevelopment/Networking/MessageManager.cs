@@ -1,45 +1,36 @@
-﻿using GB.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 namespace BeastNet.Networking
 {
-    public class MessageManager
+    public static class MessageManager
     {
-        public enum MessageSide
-        {
-            Server,
-            Client,
-            Both
-        }
+        static Dictionary<short, NetworkMessageDelegate> clientMessageRelationships = new Dictionary<short, NetworkMessageDelegate>();
 
-        public delegate void ManagedNetworkDelegate(NetworkMessage netMsg);
-        Dictionary<short, ManagedNetworkDelegate> clientMessageRelationships = new Dictionary<short, ManagedNetworkDelegate>();
-        Dictionary<short, ManagedNetworkDelegate> serverMessageRelationships = new Dictionary<short, ManagedNetworkDelegate>();
-
-        public void AddMessageToQueue(short messageCode, ManagedNetworkDelegate methodCallback, MessageSide side)
+        public static void OnSceneLoaded(Scene scene, LoadSceneMode loadMode)
         {
-            switch (side)
+            if (scene.name != "Menu" && scene.name != "_bootScene")
             {
-                case MessageSide.Server:
-                    serverMessageRelationships.Add(messageCode, methodCallback);
-                    break;
-
-                case MessageSide.Client:
-                    clientMessageRelationships.Add(messageCode, methodCallback);
-                    break;
-
-                default:
-                    clientMessageRelationships.Add(messageCode, methodCallback);
-                    serverMessageRelationships.Add(messageCode, methodCallback);
-                    break;
+                if (NetworkManager.singleton.client != null)
+                {
+                    for (int i = 0; i < clientMessageRelationships.Count; i++)
+                    {
+                        KeyValuePair<short, NetworkMessageDelegate> element = clientMessageRelationships.ElementAt(i);
+                        NetworkManager.singleton.client.RegisterHandler(element.Key, element.Value);
+                    }
+                }
             }
         }
 
-
+        public static void AddMessageToQueue(short messageCode, Action<NetworkMessage> methodCallback, bool server = true)
+        {
+            if (server)
+            {
+                NetworkServer.RegisterHandler(messageCode, (NetworkMessageDelegate)methodCallback);
+            }
+        }
     }
 }
