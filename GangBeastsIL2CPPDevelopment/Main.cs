@@ -1,11 +1,13 @@
 ﻿using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using Coatsink.UnityServices;
+using CoreNet.Messaging.Messages;
 using GB.Data;
 using HarmonyLib;
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 namespace BeastNet
@@ -13,19 +15,24 @@ namespace BeastNet
     [BepInPlugin("com.ethanbarron.il2cppmodding", "GangBeastsIL2CPPDevelopment", "0.0.1")]
     public class Main : BasePlugin
     {
+        bool menuHasLoadedPreviously;
+
         public override void Load()
         {
             AddComponent<Core>();
 
             new Harmony("Cheese").PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+            TestMessaging.Init();
             SceneManager.add_sceneLoaded(new Action<Scene, LoadSceneMode>(WrapperFix));
         }
 
         public void WrapperFix(Scene scene, LoadSceneMode mode)
         {
+            if (menuHasLoadedPreviously) return;
             if (scene.name == "Menu")
             {
-                // This enables us to use the development test server hotkeys. Will be working on this soon to streamline the process
+                menuHasLoadedPreviously = true;
+
                 AddComponent<DevelopmentTestServer>().ui = GameObject.Find("Global(Clone)/UI/PlatformUI/Development Server Menu").GetComponent<DevelopmentTestServerUI>();
 
                 // Launching from my server terminal gives the server arg which just mutes the game, hides the load level UI (it bugs out) and attempts to
@@ -42,7 +49,13 @@ namespace BeastNet
 
     public class Core : MonoBehaviour
     {
-        // Temporary
+        public void OnGUI()
+        {
+            if (GUILayout.Button("Send message"))
+            {
+                Utils.SendMessage(6942, NetNullMessage.CachedEmptyMessage, NetworkServer.active, true);
+            }
+        }
     }
 
     // DevelopmentTestServer looks for impossible command line arguments so I just fixed it

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BeastNet
+namespace BeastNet.Networking
 {
-    public static class Utils
+    public static class NetworkUtils
     {
         public static void SendMessage(short messageCode, MessageBase message, bool serverIsSendingThis = true, bool reliable = true)
         {
